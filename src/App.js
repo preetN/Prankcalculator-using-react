@@ -1,12 +1,16 @@
 import Button from "./components/Button";
 import "./style.css";
+import audioFile from "./asset/sound.mp3";
 import { useState } from "react";
 function App() {
   const [strToDisplay, setStrToDisplay] = useState("");
   const [lastOperator, setLastOperator] = useState("");
+  const [isPrank, setIsPrank] = useState(false);
   const operators = ["+", "-", "/", "%", "*"];
 
   const handleOnClick = (val) => {
+    //Reset to initial state
+    setIsPrank(false);
     //checking if first input is  not in operator array
     if (operators.includes(val) && !strToDisplay.length) {
       return;
@@ -43,6 +47,7 @@ function App() {
         return;
       }
       setStrToDisplay(eval(strToDisplay).toString());
+      total(strToDisplay);
       return;
     }
     // To check if . is valid or not
@@ -77,6 +82,22 @@ function App() {
     }
     setStrToDisplay(strToDisplay + val);
   };
+  const randomNum = () => {
+    const num = Math.round(Math.random() * 10);
+    return num <= 3 ? num : 0;
+  };
+  const total = (displayValue) => {
+    const prankVal = randomNum();
+    if (prankVal) {
+      setIsPrank(true);
+      const audio = new Audio(audioFile);
+      audio.play();
+      const newValue = eval(displayValue) + prankVal;
+      setStrToDisplay(newValue.toString());
+    } else {
+      setStrToDisplay(eval(displayValue).toString());
+    }
+  };
   const buttons = [
     { cls: "btn btn-ac", label: "AC" },
     { cls: "btn btn-c", label: "C" },
@@ -101,7 +122,9 @@ function App() {
   return (
     <div className="wrapper">
       <div className="calculator">
-        <div className="display">{strToDisplay}</div>
+        <div className={isPrank ? "display prank" : "display"}>
+          {strToDisplay}
+        </div>
         {buttons.map((item, index) => {
           return (
             <Button cls={item.cls} label={item.label} handler={handleOnClick} />
